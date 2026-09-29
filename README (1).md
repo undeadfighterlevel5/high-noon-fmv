@@ -1,80 +1,36 @@
-# High Noon — FMV Western Shooter Prototype
+# High Noon FMV — Prototype v0.2
 
-This is a no-build, beginner-friendly browser game prototype inspired by 1990s live-action light-gun / FMV Western games.
+This version turns the original shooting test into a small campaign framework.
 
-## What version 0.1 includes
+## Added in v0.2
+- Start screen and skippable story
+- Town map with four selectable locations
+- Four fixed-difficulty levels
+- Boss hideout unlocks after all four are cleared
+- Fixed enemy order and fixed spawn positions for memory-mapping
+- Per-enemy reaction times with only tiny timing jitter
+- Scene-specific cover objects
+- Enemies emerge from behind cover / doors / counters
+- Three-life system
+- Taking a hit costs one life and restarts the whole selected level
+- Game over resets the campaign and returns to the map
+- Repeat shots are allowed after an enemy is hit; only the first hit scores
+- Sidebar HUD for lives, ammo, score, and location
+- Bottom-screen reload zone with a reload cursor
+- `R` and the sidebar button still reload
 
-- Title screen
-- Western scene
-- Random outlaw spawn locations
-- Click/tap shooting
-- Six-shot ammo system
-- `R` or on-screen reload
-- Score
-- Three lives
-- Outlaw hit state
-- Outlaw firing state
-- Game-over / restart loop
-- Asset renderer designed for **CSS placeholders, still images, or video**
+## Important architecture
+`game-data.js` contains the story, levels, fixed enemy sequence, positions, and response times. `game.js` contains the engine. This is deliberate: later, still images and FMV clips can replace the temporary CSS scenes without rebuilding the rules.
 
-## Run it
+The four current scenes are placeholder CSS art. The next asset pass can replace each scene with a 16:9 background image and later with looping video.
 
-The simplest method is to double-click `index.html`.
+## Upload to GitHub
+Replace these files in the repo root:
+- `index.html`
+- `styles.css`
+- `game.js`
 
-For GitHub Pages later, upload all files to the repository root and publish the repository with GitHub Pages.
+And add:
+- `game-data.js`
 
-## Why the asset system matters
-
-Game rules live in `game.js`, while media choices are described in `GAME_CONFIG`.
-
-Current placeholder background:
-
-```js
-background: {
-  type: "css",
-  src: "western-town",
-  loop: true
-}
-```
-
-Future moving background:
-
-```js
-background: {
-  type: "video",
-  src: "assets/video/town-loop.mp4",
-  loop: true
-}
-```
-
-Current placeholder enemy:
-
-```js
-alive: { type: "css", src: "outlaw" }
-```
-
-Future filmed enemy:
-
-```js
-alive: {
-  type: "video",
-  src: "assets/video/outlaw-appears.mp4"
-}
-```
-
-The shooting, score, lives, timing, and reload code do not need to change just because the artwork becomes video.
-
-## Suggested next milestones
-
-1. Replace placeholder town with a real image.
-2. Replace outlaw with transparent PNG artwork.
-3. Add multiple enemy types.
-4. Add civilians that must **not** be shot.
-5. Add real gunshot/reload audio.
-6. Add a second scene.
-7. Add video backgrounds.
-8. Add filmed enemy appear / hit / fire clips.
-9. Add branching FMV scene transitions.
-10. Add boss encounters.
-
-See `assets/README.md` for the planned asset structure.
+GitHub Pages will redeploy automatically after the commit.
