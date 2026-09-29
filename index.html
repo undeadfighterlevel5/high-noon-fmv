@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>High Noon Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="titlebar">
+      <h1>HIGH NOON</h1>
+      <p>FMV western shooter prototype v0.1</p>
+    </header>
+
+    <section id="game" class="game" aria-label="Western shooting game">
+      <div id="backgroundLayer" class="background-layer"></div>
+      <div class="dust"></div>
+
+      <div id="enemyLayer" class="enemy-layer"></div>
+
+      <div id="damageFlash" class="damage-flash"></div>
+
+      <div class="hud">
+        <div>Score <strong id="score">0000</strong></div>
+        <div>Lives <strong id="lives">♥♥♥</strong></div>
+        <button id="reloadButton" class="reload" type="button">
+          Ammo <strong id="ammo">●●●●●●</strong>
+          <span>Reload [R]</span>
+        </button>
+      </div>
+
+      <div id="message" class="message hidden"></div>
+
+      <div id="startScreen" class="overlay">
+        <div class="card">
+          <div class="badge">A FRONTIER PICTURE SHOW</div>
+          <h2>HIGH NOON</h2>
+          <p>Outlaws are taking over town. Shoot them before they shoot you.</p>
+          <button id="startButton" type="button">START GAME</button>
+          <small>Mouse = shoot &nbsp; • &nbsp; R = reload</small>
+        </div>
+      </div>
+
+      <div id="gameOverScreen" class="overlay hidden">
+        <div class="card">
+          <div class="badge">THE DUST SETTLES</div>
+          <h2>GAME OVER</h2>
+          <p>Final score: <strong id="finalScore">0</strong></p>
+          <button id="restartButton" type="button">RIDE AGAIN</button>
+        </div>
+      </div>
+
+      <div id="muzzleFlash" class="muzzle-flash"></div>
+    </section>
+
+    <p class="note">
+      Prototype assets are placeholders. The engine already supports image and video media.
+    </p>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
