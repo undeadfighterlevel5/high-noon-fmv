@@ -5,6 +5,7 @@ window.GAME_DATA = {
   hitDisplayMs: 450,
   betweenEnemiesMs: 650,
   reactionJitterMs: 45,
+  civilianVisibleMs: 1200,
 
   story: [
     {
@@ -47,22 +48,19 @@ window.GAME_DATA = {
       order: 2,
       name: "Silver Spur Saloon",
       difficulty: "LEVEL 2 — MEDIUM",
-      description: "Prototype art now treats the saloon as a player-view room. Watch the piano side, the mid-floor card table, the swinging doors, the balcony rail, and the long bar on the right.",
+      description: "New background pass with real saloon geometry. Six villains are mixed with a bartender and two innocent poker players. Watch the piano, poker tables, barrel by the doors, coat rack, and the upper balcony.",
       sceneClass: "scene-saloon",
-      cover: [
-        { type: "piano", x: 10, y: 69, w: 12, h: 20 },
-        { type: "table", x: 16, y: 84, w: 18, h: 13 },
-        { type: "table", x: 35, y: 73, w: 13, h: 10 },
-        { type: "table", x: 82, y: 84, w: 20, h: 13 },
-        { type: "saloon-bar", x: 83, y: 67, w: 30, h: 19 }
-      ],
+      cover: [],
       enemies: [
-        { id: "saloon-1", spawn: "left-walk-in", startX: -8, startY: 76, x: 24, y: 76, walkMs: 950, reveal: "rise", reactionMs: 1360, scale: 1.04 },
-        { id: "saloon-2", spawn: "mid-table", x: 35, y: 73, reveal: "rise", reactionMs: 1100, scale: 0.96 },
-        { id: "saloon-3", spawn: "bar-right", x: 83, y: 67, reveal: "rise", reactionMs: 980, scale: 0.95 },
-        { id: "saloon-4", spawn: "swinging-doors", x: 50, y: 59, reveal: "rise", reactionMs: 840, scale: 0.83 },
-        { id: "saloon-5", spawn: "balcony", x: 64, y: 40, reveal: "rise", reactionMs: 760, scale: 0.68 },
-        { id: "saloon-6", spawn: "piano-side", x: 10, y: 68, reveal: "right", reactionMs: 690, scale: 0.98 }
+        { id: "saloon-civ-1", kind: "civilian", role: "poker", x: 12, y: 88, reveal: "rise", visibleMs: 1300, scale: 1.16 },
+        { id: "saloon-villain-1", kind: "villain", role: "outlaw", x: 8, y: 71, reveal: "right", reactionMs: 1180, scale: 1.03 },
+        { id: "saloon-villain-2", kind: "villain", role: "outlaw", x: 43, y: 68, reveal: "rise", reactionMs: 980, scale: 0.94 },
+        { id: "saloon-civ-2", kind: "civilian", role: "bartender", x: 87, y: 67, reveal: "rise", visibleMs: 1250, scale: 0.97 },
+        { id: "saloon-villain-3", kind: "villain", role: "outlaw", startX: 50, startY: 63, x: 50, y: 69, walkMs: 980, reveal: "rise", reactionMs: 860, scale: 0.9 },
+        { id: "saloon-civ-3", kind: "civilian", role: "poker", x: 32, y: 73, reveal: "rise", visibleMs: 1150, scale: 0.96 },
+        { id: "saloon-villain-4", kind: "villain", role: "outlaw", x: 62, y: 64, reveal: "left", reactionMs: 820, scale: 0.86 },
+        { id: "saloon-villain-5", kind: "villain", role: "outlaw", x: 66, y: 31, reveal: "rise", reactionMs: 760, scale: 0.66 },
+        { id: "saloon-villain-6", kind: "villain", role: "outlaw", x: 86, y: 17, reveal: "left", reactionMs: 690, scale: 0.6 }
       ]
     },
     {

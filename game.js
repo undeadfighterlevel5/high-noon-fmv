@@ -36,9 +36,14 @@ function hideAllOverlays() { document.querySelectorAll('.overlay').forEach(x => 
 function show(el) { el.classList.remove('hidden'); }
 function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 
+function formatScore(value) {
+  const sign = value < 0 ? '-' : '';
+  return sign + String(Math.abs(value)).padStart(4, '0');
+}
+
 function updateHud() {
   els.lives.textContent = '♥'.repeat(state.lives) + '♡'.repeat(DATA.startingLives - state.lives);
-  els.score.textContent = String(state.score).padStart(4, '0');
+  els.score.textContent = formatScore(state.score);
   els.ammo.textContent = '●'.repeat(state.ammo) + '○'.repeat(DATA.maxAmmo - state.ammo);
   els.hudLevel.textContent = state.currentLevel ? state.currentLevel.name : '—';
 }
@@ -151,7 +156,8 @@ function reactionTime(enemy) {
 function createEnemyVisual(enemy) {
   const el = document.createElement('div');
   const walkIn = Number.isFinite(enemy.startX) || Number.isFinite(enemy.startY);
-  el.className = `enemy reveal-${enemy.reveal || 'rise'} ${enemy.boss ? 'boss-enemy' : ''} ${walkIn ? 'walk-in' : ''}`.trim();
+  const kind = enemy.kind || 'villain';
+  el.className = `enemy kind-${kind} reveal-${enemy.reveal || 'rise'} ${enemy.boss ? 'boss-enemy' : ''} ${walkIn ? 'walk-in' : ''}`.trim();
   el.style.setProperty('--enemy-scale', enemy.scale || 1);
   if (enemy.z) el.style.zIndex = String(enemy.z);
   if (walkIn && enemy.walkMs) el.style.setProperty('--walk-ms', `${enemy.walkMs}ms`);
@@ -160,7 +166,16 @@ function createEnemyVisual(enemy) {
   const startY = Number.isFinite(enemy.startY) ? enemy.startY : enemy.y;
   el.style.left = `${startX}%`;
   el.style.top = `${startY}%`;
-  el.innerHTML = `<div class="outlaw"><div class="hat"></div><div class="head"></div><div class="body"></div><div class="arm"></div><div class="gun"></div></div>`;
+
+  if (kind === 'civilian') {
+    if (enemy.role === 'bartender') {
+      el.innerHTML = `<div class="civilian bartender"><div class="hair"></div><div class="head"></div><div class="mustache"></div><div class="torso"></div><div class="apron"></div><div class="hand left"></div><div class="hand right"></div></div>`;
+    } else {
+      el.innerHTML = `<div class="civilian poker"><div class="hat"></div><div class="head"></div><div class="mustache"></div><div class="torso"></div><div class="vest"></div><div class="hand left"></div><div class="hand right"></div></div>`;
+    }
+  } else {
+    el.innerHTML = `<div class="outlaw"><div class="hat"></div><div class="head"></div><div class="body"></div><div class="arm"></div><div class="gun"></div></div>`;
+  }
   return el;
 }
 
@@ -182,7 +197,7 @@ function spawnNextEnemy() {
     }
   });
 
-  const active = { data: enemyData, el, hit: false, fired: false };
+  const active = { data: enemyData, el, hit: false, fired: false, kind: enemyData.kind || 'villain' };
   state.activeEnemy = active;
 
   el.addEventListener('pointerdown', (event) => {
@@ -190,17 +205,43 @@ function spawnNextEnemy() {
     if (!state.running || active.fired) return;
     if (!consumeBullet(event.clientX, event.clientY)) return;
 
-    // Repeat shots are allowed. Only the first hit scores / resolves the enemy.
     el.classList.remove('repeat-hit'); void el.offsetWidth; el.classList.add('repeat-hit');
     if (active.hit) return;
 
     active.hit = true;
-    state.score += enemyData.boss ? 500 : DATA.scorePerHit;
-    updateHud();
-    el.classList.add('hit');
+
+    if (active.kind === 'civilian') {
+      state.score -= 500;
+      updateHud();
+      showMessage('INNOCENT! -500', 900);
+      el.classList.add('civilian-hit');
+    } else {
+      state.score += enemyData.boss ? 500 : DATA.scorePerHit;
+      updateHud();
+      el.classList.add('hit');
+    }
+
     state.enemyIndex++;
-    timer(() => { if (el.isConnected) el.remove(); state.activeEnemy = null; timer(spawnNextEnemy, DATA.betweenEnemiesMs); }, DATA.hitDisplayMs);
+    timer(() => {
+      if (el.isConnected) el.remove();
+      state.activeEnemy = null;
+      timer(spawnNextEnemy, DATA.betweenEnemiesMs);
+    }, DATA.hitDisplayMs);
   });
+
+  if (active.kind === 'civilian') {
+    timer(() => {
+      if (!state.running || active.hit || state.activeEnemy !== active) return;
+      state.enemyIndex++;
+      el.classList.add('civilian-exit');
+      timer(() => {
+        if (el.isConnected) el.remove();
+        state.activeEnemy = null;
+        timer(spawnNextEnemy, DATA.betweenEnemiesMs);
+      }, 180);
+    }, walkDelay + (enemyData.visibleMs || DATA.civilianVisibleMs));
+    return;
+  }
 
   timer(() => {
     if (!state.running || active.hit || active.fired || state.activeEnemy !== active) return;
