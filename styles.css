@@ -8,7 +8,7 @@
 
 /* v0.2.2 saloon pass: real saloon background and civilian support */
 .scene-saloon{
-  background-image:url("assets/saloon-bg.png");
+  background-image:url("saloon-bg.png");
   background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;
