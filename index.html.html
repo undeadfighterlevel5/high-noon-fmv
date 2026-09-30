@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>High Noon FMV</title>
+  <link rel="stylesheet" href="styles.css?v=0222" />
+</head>
+<body>
+  <main class="shell">
+    <header class="titlebar">
+      <h1>HIGH NOON</h1>
+      <p>FMV western shooter prototype v0.2.2</p>
+    </header>
+
+    <section id="game" class="game" aria-label="Western shooting game">
+      <div id="sceneLayer" class="scene-layer"></div>
+      <div id="enemyLayer" class="enemy-layer"></div>
+      <div id="coverLayer" class="cover-layer"></div>
+      <div id="damageFlash" class="damage-flash"></div>
+
+      <aside id="hud" class="hud hidden">
+        <div class="hud-block"><span>Location</span><strong id="hudLevel">—</strong></div>
+        <div class="hud-block"><span>Lives</span><strong id="lives">♥♥♥</strong></div>
+        <div class="hud-block"><span>Score</span><strong id="score">0000</strong></div>
+        <div class="hud-block"><span>Shots</span><strong id="ammo">●●●●●●</strong></div>
+        <button id="reloadButton" class="reload-button" type="button">Reload [R]</button>
+      </aside>
+
+      <div id="reloadZone" class="reload-zone hidden"><span>RELOAD</span></div>
+      <div id="message" class="message hidden"></div>
+      <div id="muzzleFlash" class="muzzle-flash"></div>
+
+      <div id="titleScreen" class="overlay">
+        <div class="card title-card">
+          <div class="badge">A FRONTIER PICTURE SHOW</div>
+          <h2>HIGH NOON</h2>
+          <p>The Dust Devils have taken Mercy's Run. One gunfighter can still change that.</p>
+          <button id="storyButton" type="button">BEGIN</button>
+        </div>
+      </div>
+
+      <div id="storyScreen" class="overlay hidden">
+        <div class="card story-card">
+          <div class="badge">MERCY'S RUN, 1891</div>
+          <h2 id="storyTitle">The town fell in a week.</h2>
+          <p id="storyText"></p>
+          <div class="story-actions">
+            <button id="storyNext" type="button">CONTINUE</button>
+            <button id="storySkip" class="secondary" type="button">SKIP STORY</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="menuScreen" class="overlay hidden">
+        <div class="menu-panel">
+          <div class="menu-heading">
+            <div>
+              <div class="badge">CHOOSE YOUR NEXT STOP</div>
+              <h2>MERCY'S RUN</h2>
+            </div>
+            <div class="progress"><span id="progressText">0 / 4 cleared</span></div>
+          </div>
+          <div id="levelGrid" class="level-grid"></div>
+          <button id="bossButton" class="boss-card locked" type="button" disabled>
+            <span class="boss-title">THE HIDEOUT</span>
+            <span id="bossStatus">Clear all four locations to unlock the boss.</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="levelIntro" class="overlay hidden">
+        <div class="card">
+          <div class="badge" id="levelIntroDifficulty"></div>
+          <h2 id="levelIntroTitle"></h2>
+          <p id="levelIntroText"></p>
+          <button id="levelStartButton" type="button">DRAW</button>
+          <button id="levelBackButton" class="secondary" type="button">BACK TO TOWN</button>
+        </div>
+      </div>
+
+      <div id="lifeLostScreen" class="overlay hidden">
+        <div class="card warning-card">
+          <div class="badge">YOU WERE HIT</div>
+          <h2>YOU LOST A LIFE</h2>
+          <p id="lifeLostText"></p>
+          <button id="retryButton" type="button">RETRY LOCATION</button>
+        </div>
+      </div>
+
+      <div id="levelClearScreen" class="overlay hidden">
+        <div class="card">
+          <div class="badge">LOCATION CLEARED</div>
+          <h2 id="clearTitle">GOOD SHOOTING</h2>
+          <p id="clearText"></p>
+          <button id="clearContinue" type="button">BACK TO TOWN</button>
+        </div>
+      </div>
+
+      <div id="gameOverScreen" class="overlay hidden">
+        <div class="card warning-card">
+          <div class="badge">THE DUST SETTLES</div>
+          <h2>GAME OVER</h2>
+          <p>Your run is over. The town map has been reset.</p>
+          <button id="gameOverButton" type="button">START OVER</button>
+        </div>
+      </div>
+    </section>
+
+    <p class="note">Prototype scenes and cover objects are temporary. The level data is already separated so images and video can replace them later.</p>
+  </main>
+
+  <script src="game-data.js?v=0222"></script>
+  <script src="game.js?v=0222"></script>
+</body>
+</html>
