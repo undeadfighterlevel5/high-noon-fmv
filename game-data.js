@@ -47,20 +47,22 @@ window.GAME_DATA = {
       order: 2,
       name: "Silver Spur Saloon",
       difficulty: "LEVEL 2 — MEDIUM",
-      description: "The room is crowded with cover. Watch the bar, tables, balcony, and swinging doors.",
+      description: "Prototype art now treats the saloon as a player-view room. Watch the piano side, the mid-floor card table, the swinging doors, the balcony rail, and the long bar on the right.",
       sceneClass: "scene-saloon",
       cover: [
-        { type: "saloon-bar", x: 70, y: 69, w: 48, h: 27 },
-        { type: "table", x: 29, y: 74, w: 25, h: 18 },
-        { type: "piano", x: 16, y: 64, w: 17, h: 28 }
+        { type: "piano", x: 10, y: 69, w: 12, h: 20 },
+        { type: "table", x: 16, y: 84, w: 18, h: 13 },
+        { type: "table", x: 35, y: 73, w: 13, h: 10 },
+        { type: "table", x: 82, y: 84, w: 20, h: 13 },
+        { type: "saloon-bar", x: 83, y: 67, w: 30, h: 19 }
       ],
       enemies: [
-        { id: "saloon-1", spawn: "table", x: 29, y: 73, reveal: "rise", reactionMs: 1180 },
-        { id: "saloon-2", spawn: "bar-left", x: 58, y: 67, reveal: "rise", reactionMs: 1040 },
-        { id: "saloon-3", spawn: "doors", x: 48, y: 59, reveal: "right", reactionMs: 920 },
-        { id: "saloon-4", spawn: "bar-right", x: 78, y: 66, reveal: "rise", reactionMs: 790 },
-        { id: "saloon-5", spawn: "balcony", x: 68, y: 41, reveal: "rise", reactionMs: 880 },
-        { id: "saloon-6", spawn: "piano", x: 16, y: 64, reveal: "left", reactionMs: 960 }
+        { id: "saloon-1", spawn: "left-walk-in", startX: -8, startY: 76, x: 24, y: 76, walkMs: 950, reveal: "rise", reactionMs: 1360, scale: 1.04 },
+        { id: "saloon-2", spawn: "mid-table", x: 35, y: 73, reveal: "rise", reactionMs: 1100, scale: 0.96 },
+        { id: "saloon-3", spawn: "bar-right", x: 83, y: 67, reveal: "rise", reactionMs: 980, scale: 0.95 },
+        { id: "saloon-4", spawn: "swinging-doors", x: 50, y: 59, reveal: "rise", reactionMs: 840, scale: 0.83 },
+        { id: "saloon-5", spawn: "balcony", x: 64, y: 40, reveal: "rise", reactionMs: 760, scale: 0.68 },
+        { id: "saloon-6", spawn: "piano-side", x: 10, y: 68, reveal: "right", reactionMs: 690, scale: 0.98 }
       ]
     },
     {

@@ -150,8 +150,16 @@ function reactionTime(enemy) {
 
 function createEnemyVisual(enemy) {
   const el = document.createElement('div');
-  el.className = `enemy reveal-${enemy.reveal || 'rise'} ${enemy.boss ? 'boss-enemy' : ''}`;
-  el.style.left = `${enemy.x}%`; el.style.top = `${enemy.y}%`;
+  const walkIn = Number.isFinite(enemy.startX) || Number.isFinite(enemy.startY);
+  el.className = `enemy reveal-${enemy.reveal || 'rise'} ${enemy.boss ? 'boss-enemy' : ''} ${walkIn ? 'walk-in' : ''}`.trim();
+  el.style.setProperty('--enemy-scale', enemy.scale || 1);
+  if (enemy.z) el.style.zIndex = String(enemy.z);
+  if (walkIn && enemy.walkMs) el.style.setProperty('--walk-ms', `${enemy.walkMs}ms`);
+
+  const startX = Number.isFinite(enemy.startX) ? enemy.startX : enemy.x;
+  const startY = Number.isFinite(enemy.startY) ? enemy.startY : enemy.y;
+  el.style.left = `${startX}%`;
+  el.style.top = `${startY}%`;
   el.innerHTML = `<div class="outlaw"><div class="hat"></div><div class="head"></div><div class="body"></div><div class="arm"></div><div class="gun"></div></div>`;
   return el;
 }
@@ -164,7 +172,16 @@ function spawnNextEnemy() {
   const enemyData = sequence[state.enemyIndex];
   const el = createEnemyVisual(enemyData);
   els.enemyLayer.appendChild(el);
-  requestAnimationFrame(() => el.classList.add('revealed'));
+
+  const walkDelay = (Number.isFinite(enemyData.startX) || Number.isFinite(enemyData.startY)) ? (enemyData.walkMs || 700) : 0;
+  requestAnimationFrame(() => {
+    el.classList.add('revealed');
+    if (walkDelay) {
+      el.style.left = `${enemyData.x}%`;
+      el.style.top = `${enemyData.y}%`;
+    }
+  });
+
   const active = { data: enemyData, el, hit: false, fired: false };
   state.activeEnemy = active;
 
@@ -189,7 +206,7 @@ function spawnNextEnemy() {
     if (!state.running || active.hit || active.fired || state.activeEnemy !== active) return;
     active.fired = true; el.classList.add('firing');
     timer(() => loseLife(), 150);
-  }, reactionTime(enemyData));
+  }, walkDelay + reactionTime(enemyData));
 }
 
 function loseLife() {
