@@ -182,6 +182,19 @@ function renderScene(level) {
       img.dataset.occluder = o.id || '';
       els.coverLayer.appendChild(img);
     });
+    (level.scene.frontOverlays || []).forEach(o => {
+      const img = document.createElement('img');
+      img.className = 'scene-front-overlay';
+      img.src = o.src;
+      img.alt = '';
+      if (o.id) img.dataset.overlay = o.id;
+      if (Number.isFinite(o.left)) img.style.left = `${o.left}%`;
+      if (Number.isFinite(o.top)) img.style.top = `${o.top}%`;
+      if (Number.isFinite(o.width)) img.style.width = `${o.width}%`;
+      if (Number.isFinite(o.height)) img.style.height = `${o.height}%`;
+      if (Number.isFinite(o.z)) img.style.zIndex = String(o.z);
+      els.coverLayer.appendChild(img);
+    });
     return;
   }
 

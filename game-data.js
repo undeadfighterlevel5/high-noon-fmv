@@ -77,8 +77,9 @@ window.GAME_DATA = {
           balconyDoorStart: { x: 83.0, y: 16.0, scale: 0.46, z: 18, slot: "balconyDoor" },
           balconyDoorShoot: { x: 83.0, y: 25.0, scale: 0.58, z: 18, slot: "balconyDoor" }
         },
-        occluders: [
-          { id: "frontPoker", src: "saloon-occ-front-poker.png" }
+        occluders: [],
+        frontOverlays: [
+          { id: "frontPoker", src: "front-poker-overlay.png", left: -12.14, top: 59.19, width: 50.36, height: 44.63, z: 1 }
         ],
         ambientActors: [
           { id: "poker-front", kind: "civilian", role: "poker", anchor: "pokerFrontSeat", pose: "seated", hitbox: { left: 12, right: 12, top: 0, bottom: 42 } },
