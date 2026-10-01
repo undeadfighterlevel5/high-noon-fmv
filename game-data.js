@@ -79,7 +79,8 @@ window.GAME_DATA = {
         },
         occluders: [],
         frontOverlays: [
-          { id: "frontPoker", src: "front-poker-overlay.png", left: -12.14, top: 59.19, width: 50.36, height: 44.63, z: 1 }
+          { id: "frontPoker", src: "front-poker-overlay.png", left: -12.14, top: 59.19, width: 50.36, height: 44.63, z: 1 },
+          { id: "villain1PianoBush", src: "villain1-piano-bush-overlay.png", left: 14.71, top: 23.17, width: 21.35, height: 48.99, z: 1 }
         ],
         ambientActors: [
           { id: "poker-front", kind: "civilian", role: "poker", anchor: "pokerFrontSeat", pose: "seated", hitbox: { left: 12, right: 12, top: 0, bottom: 42 } },

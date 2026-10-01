@@ -74,3 +74,8 @@ Removed all generated foreground/occluder image layers from the live saloon scen
 ## v0.2.4.4
 
 Added the first manual front overlay PNG provided by the user: the front poker table. This creates a manual foreground cover layer while leaving the rest of the automatic occluders disabled.
+
+
+## v0.2.4.5
+
+Added the user-provided manual foreground overlay for Villain 1: the piano / bush / round-table cutout. This continues the manual overlay workflow established by the front poker table overlay.
