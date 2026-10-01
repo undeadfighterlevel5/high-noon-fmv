@@ -64,3 +64,5 @@
 .slot-barrelLane,.slot-doorCenter,.slot-crateLane{z-index:20;}
 .slot-pianoLane{z-index:19;}
 .slot-balconyRail,.slot-balconyDoor{z-index:18;}
+
+.scene-occluder[data-occluder="frontPoker"]{transform:translateY(2.5%);}

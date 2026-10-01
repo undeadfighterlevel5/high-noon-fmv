@@ -65,7 +65,7 @@ window.GAME_DATA = {
           balconyDoor:  { clipPath: "polygon(77% 5%, 90% 5%, 90% 24%, 77% 24%)", z: 18 }
         },
         anchors: {
-          pokerFrontSeat:   { x: 12.0, y: 82.8, scale: 1.03, z: 17, slot: "frontPoker" },
+          pokerFrontSeat:   { x: 14.0, y: 82.8, scale: 1.03, z: 17, slot: "frontPoker" },
           pianoLean:        { x: 23.8, y: 63.0, scale: 0.92, z: 19, slot: "pianoLane" },
           pokerMidSeat:     { x: 31.0, y: 67.5, scale: 0.82, z: 21, slot: "midPoker" },
           barrelLeftDoor:   { x: 40.0, y: 61.0, scale: 0.76, z: 20, slot: "barrelLane" },
