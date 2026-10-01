@@ -21,6 +21,7 @@ const state = {
   currentLevel: null,
   enemyIndex: 0,
   activeEnemy: null,
+  ambientActors: new Map(),
   running: false,
   storyIndex: 0,
   timers: new Set()
@@ -98,8 +99,11 @@ function renderMenu() {
   state.running = false;
   els.hud.classList.add('hidden');
   els.reloadZone.classList.add('hidden');
-  els.enemyLayer.replaceChildren(); els.coverLayer.replaceChildren();
+  els.enemyLayer.replaceChildren(); els.coverLayer.replaceChildren(); state.ambientActors.clear();
   els.sceneLayer.className = 'scene-layer scene-town-map';
+  els.sceneLayer.style.backgroundImage = '';
+  els.sceneLayer.style.backgroundSize = '';
+  els.sceneLayer.style.backgroundPosition = '';
   els.levelGrid.innerHTML = '';
 
   DATA.levels.forEach(level => {
@@ -128,9 +132,41 @@ function openLevelIntro(level) {
   hideAllOverlays(); show(els.levelIntro);
 }
 
+function resolveAnchor(level, actor, key = 'anchor') {
+  const name = actor && actor[key];
+  if (name && level.scene && level.scene.anchors && level.scene.anchors[name]) return level.scene.anchors[name];
+  return actor || { x: 50, y: 60, scale: 1 };
+}
+
+function applyAnchor(el, anchor) {
+  el.style.left = `${anchor.x}%`;
+  el.style.top = `${anchor.y}%`;
+  el.style.setProperty('--enemy-scale', anchor.scale || 1);
+  if (anchor.z) el.style.zIndex = String(anchor.z);
+}
+
 function renderScene(level) {
-  els.sceneLayer.className = `scene-layer ${level.sceneClass}`;
+  els.sceneLayer.className = `scene-layer ${level.sceneClass || ''}`;
+  els.sceneLayer.style.backgroundImage = '';
+  els.sceneLayer.style.backgroundSize = '';
+  els.sceneLayer.style.backgroundPosition = '';
   els.coverLayer.innerHTML = '';
+
+  if (level.scene && level.scene.background) {
+    els.sceneLayer.style.backgroundImage = `url("${level.scene.background}")`;
+    els.sceneLayer.style.backgroundSize = 'cover';
+    els.sceneLayer.style.backgroundPosition = 'center center';
+    (level.scene.occluders || []).forEach(o => {
+      const img = document.createElement('img');
+      img.className = 'scene-occluder';
+      img.src = o.src;
+      img.alt = '';
+      img.dataset.occluder = o.id || '';
+      els.coverLayer.appendChild(img);
+    });
+    return;
+  }
+
   (level.cover || []).forEach(c => {
     const el = document.createElement('div');
     el.className = `cover ${c.type}`;
@@ -139,10 +175,79 @@ function renderScene(level) {
   });
 }
 
+function createActorVisual(actor, anchor) {
+  const el = document.createElement('div');
+  const kind = actor.kind || 'villain';
+  const role = actor.role || (kind === 'civilian' ? 'poker' : 'outlaw');
+  const motion = actor.motion || (actor.reveal === 'left' ? 'leanLeft' : actor.reveal === 'right' ? 'leanRight' : 'rise');
+  const pose = actor.pose || 'standing';
+  el.className = `enemy actor kind-${kind} role-${role} motion-${motion} pose-${pose} ${actor.boss ? 'boss-enemy' : ''}`;
+  applyAnchor(el, anchor);
+
+  if (kind === 'civilian') {
+    if (role === 'bartender') {
+      el.innerHTML = `<div class="civilian bartender"><div class="hair"></div><div class="head"></div><div class="mustache"></div><div class="torso"></div><div class="apron"></div><div class="hand left"></div><div class="hand right"></div></div><div class="shot-target"></div>`;
+    } else {
+      el.innerHTML = `<div class="civilian poker"><div class="hat"></div><div class="head"></div><div class="mustache"></div><div class="torso"></div><div class="vest"></div><div class="hand left"></div><div class="hand right"></div></div><div class="shot-target"></div>`;
+    }
+  } else {
+    el.innerHTML = `<div class="outlaw"><div class="hat"></div><div class="head"></div><div class="body"></div><div class="arm"></div><div class="gun"></div></div><div class="shot-target"></div>`;
+  }
+  const hitbox = actor.hitbox || {};
+  el.style.setProperty('--hit-left', `${hitbox.left ?? 0}%`);
+  el.style.setProperty('--hit-right', `${hitbox.right ?? 0}%`);
+  el.style.setProperty('--hit-top', `${hitbox.top ?? 0}%`);
+  el.style.setProperty('--hit-bottom', `${hitbox.bottom ?? 0}%`);
+  return el;
+}
+
+function penalizeCivilian(actorRecord, event) {
+  event.preventDefault(); event.stopPropagation();
+  if (!state.running || actorRecord.shot) return;
+  if (!consumeBullet(event.clientX, event.clientY)) return;
+  actorRecord.shot = true;
+  state.score -= 500;
+  updateHud();
+  showMessage('INNOCENT! -500', 900);
+  actorRecord.el.classList.add('civilian-hit');
+
+  const active = state.activeEnemy;
+  const isActiveActor = active && active.ambientId === actorRecord.data.id;
+  if (isActiveActor) {
+    state.enemyIndex++;
+    state.activeEnemy = null;
+    timer(() => {
+      actorRecord.el.remove();
+      state.ambientActors.delete(actorRecord.data.id);
+      timer(spawnNextEnemy, DATA.betweenEnemiesMs);
+    }, DATA.hitDisplayMs);
+  } else {
+    timer(() => {
+      actorRecord.el.remove();
+      state.ambientActors.delete(actorRecord.data.id);
+    }, DATA.hitDisplayMs);
+  }
+}
+
+function renderAmbientActors(level) {
+  state.ambientActors.clear();
+  const actors = level.scene?.ambientActors || [];
+  actors.forEach(data => {
+    const anchor = resolveAnchor(level, data);
+    const el = createActorVisual(data, anchor);
+    el.classList.add('ambient-actor', 'revealed');
+    els.enemyLayer.appendChild(el);
+    const record = { data, el, shot: false };
+    state.ambientActors.set(data.id, record);
+    el.querySelector('.shot-target').addEventListener('pointerdown', e => penalizeCivilian(record, e));
+  });
+}
+
 function beginLevel(level) {
   clearTimers(); hideAllOverlays();
   state.currentLevel = level; state.enemyIndex = 0; state.activeEnemy = null; state.running = true; state.ammo = DATA.maxAmmo;
-  renderScene(level); els.enemyLayer.replaceChildren();
+  els.enemyLayer.replaceChildren(); state.ambientActors.clear();
+  renderScene(level); renderAmbientActors(level);
   els.hud.classList.remove('hidden'); els.reloadZone.classList.remove('hidden'); updateHud();
   showMessage(level.id === 'hideout' ? 'CROWE IS HERE' : 'DRAW!', 700);
   timer(spawnNextEnemy, 850);
@@ -153,72 +258,76 @@ function reactionTime(enemy) {
   return clamp(enemy.reactionMs + jitter, 300, 3000);
 }
 
-function createEnemyVisual(enemy) {
-  const el = document.createElement('div');
-  const walkIn = Number.isFinite(enemy.startX) || Number.isFinite(enemy.startY);
-  const kind = enemy.kind || 'villain';
-  el.className = `enemy kind-${kind} reveal-${enemy.reveal || 'rise'} ${enemy.boss ? 'boss-enemy' : ''} ${walkIn ? 'walk-in' : ''}`.trim();
-  el.style.setProperty('--enemy-scale', enemy.scale || 1);
-  if (enemy.z) el.style.zIndex = String(enemy.z);
-  if (walkIn && enemy.walkMs) el.style.setProperty('--walk-ms', `${enemy.walkMs}ms`);
-
-  const startX = Number.isFinite(enemy.startX) ? enemy.startX : enemy.x;
-  const startY = Number.isFinite(enemy.startY) ? enemy.startY : enemy.y;
-  el.style.left = `${startX}%`;
-  el.style.top = `${startY}%`;
-
-  if (kind === 'civilian') {
-    if (enemy.role === 'bartender') {
-      el.innerHTML = `<div class="civilian bartender"><div class="hair"></div><div class="head"></div><div class="mustache"></div><div class="torso"></div><div class="apron"></div><div class="hand left"></div><div class="hand right"></div></div>`;
-    } else {
-      el.innerHTML = `<div class="civilian poker"><div class="hat"></div><div class="head"></div><div class="mustache"></div><div class="torso"></div><div class="vest"></div><div class="hand left"></div><div class="hand right"></div></div>`;
-    }
-  } else {
-    el.innerHTML = `<div class="outlaw"><div class="hat"></div><div class="head"></div><div class="body"></div><div class="arm"></div><div class="gun"></div></div>`;
-  }
-  return el;
+function finishAmbientEncounter(active, actorRecord) {
+  if (!state.running || state.activeEnemy !== active) return;
+  state.enemyIndex++;
+  state.activeEnemy = null;
+  actorRecord.el.remove();
+  state.ambientActors.delete(actorRecord.data.id);
+  timer(spawnNextEnemy, DATA.betweenEnemiesMs);
 }
 
-function spawnNextEnemy() {
-  if (!state.running) return;
-  const sequence = state.currentLevel.enemies;
-  if (state.enemyIndex >= sequence.length) { clearLevel(); return; }
+function runAmbientEncounter(encounter) {
+  const actorRecord = state.ambientActors.get(encounter.actorId);
+  if (!actorRecord || !actorRecord.el.isConnected || actorRecord.shot) {
+    state.enemyIndex++;
+    timer(spawnNextEnemy, 180);
+    return;
+  }
 
-  const enemyData = sequence[state.enemyIndex];
-  const el = createEnemyVisual(enemyData);
+  const el = actorRecord.el;
+  const active = { data: encounter, el, kind: 'civilian', ambientId: encounter.actorId, hit: false, fired: false };
+  state.activeEnemy = active;
+  el.classList.add('active-encounter');
+
+  if (encounter.motion === 'standExitLeft' || encounter.motion === 'standExitRight') {
+    el.classList.remove('pose-seated');
+    el.classList.add('pose-standing', 'civilian-standing');
+    timer(() => {
+      if (!state.running || state.activeEnemy !== active || actorRecord.shot) return;
+      el.classList.add(encounter.motion === 'standExitLeft' ? 'exit-left' : 'exit-right');
+    }, 520);
+  }
+
+  timer(() => {
+    if (!state.running || state.activeEnemy !== active || actorRecord.shot) return;
+    finishAmbientEncounter(active, actorRecord);
+  }, encounter.visibleMs || DATA.civilianVisibleMs || 1350);
+}
+
+function spawnDynamicEncounter(encounter) {
+  const level = state.currentLevel;
+  const targetAnchor = resolveAnchor(level, encounter, 'anchor');
+  const startAnchor = encounter.startAnchor ? resolveAnchor(level, encounter, 'startAnchor') : targetAnchor;
+  const el = createActorVisual(encounter, startAnchor);
   els.enemyLayer.appendChild(el);
 
-  const walkDelay = (Number.isFinite(enemyData.startX) || Number.isFinite(enemyData.startY)) ? (enemyData.walkMs || 700) : 0;
+  const moveMs = encounter.startAnchor ? (encounter.moveMs || 700) : 0;
+  if (moveMs) el.style.setProperty('--move-ms', `${moveMs}ms`);
+
   requestAnimationFrame(() => {
     el.classList.add('revealed');
-    if (walkDelay) {
-      el.style.left = `${enemyData.x}%`;
-      el.style.top = `${enemyData.y}%`;
-    }
+    if (moveMs) applyAnchor(el, targetAnchor);
   });
 
-  const active = { data: enemyData, el, hit: false, fired: false, kind: enemyData.kind || 'villain' };
+  const active = { data: encounter, el, hit: false, fired: false, kind: encounter.kind || 'villain' };
   state.activeEnemy = active;
 
-  el.addEventListener('pointerdown', (event) => {
+  el.querySelector('.shot-target').addEventListener('pointerdown', event => {
     event.preventDefault(); event.stopPropagation();
     if (!state.running || active.fired) return;
     if (!consumeBullet(event.clientX, event.clientY)) return;
-
     el.classList.remove('repeat-hit'); void el.offsetWidth; el.classList.add('repeat-hit');
     if (active.hit) return;
 
-    active.hit = true;
-
     if (active.kind === 'civilian') {
+      active.hit = true;
       state.score -= 500;
-      updateHud();
-      showMessage('INNOCENT! -500', 900);
-      el.classList.add('civilian-hit');
+      updateHud(); showMessage('INNOCENT! -500', 900); el.classList.add('civilian-hit');
     } else {
-      state.score += enemyData.boss ? 500 : DATA.scorePerHit;
-      updateHud();
-      el.classList.add('hit');
+      active.hit = true;
+      state.score += encounter.boss ? 500 : DATA.scorePerHit;
+      updateHud(); el.classList.add('hit');
     }
 
     state.enemyIndex++;
@@ -229,17 +338,14 @@ function spawnNextEnemy() {
     }, DATA.hitDisplayMs);
   });
 
-  if (active.kind === 'civilian') {
+  if ((encounter.kind || 'villain') === 'civilian') {
     timer(() => {
       if (!state.running || active.hit || state.activeEnemy !== active) return;
       state.enemyIndex++;
+      state.activeEnemy = null;
       el.classList.add('civilian-exit');
-      timer(() => {
-        if (el.isConnected) el.remove();
-        state.activeEnemy = null;
-        timer(spawnNextEnemy, DATA.betweenEnemiesMs);
-      }, 180);
-    }, walkDelay + (enemyData.visibleMs || DATA.civilianVisibleMs));
+      timer(() => { el.remove(); timer(spawnNextEnemy, DATA.betweenEnemiesMs); }, 220);
+    }, moveMs + (encounter.visibleMs || DATA.civilianVisibleMs || 1350));
     return;
   }
 
@@ -247,7 +353,19 @@ function spawnNextEnemy() {
     if (!state.running || active.hit || active.fired || state.activeEnemy !== active) return;
     active.fired = true; el.classList.add('firing');
     timer(() => loseLife(), 150);
-  }, walkDelay + reactionTime(enemyData));
+  }, moveMs + reactionTime(encounter));
+}
+
+function spawnNextEnemy() {
+  if (!state.running) return;
+  const sequence = (state.currentLevel.encounters && state.currentLevel.encounters.length)
+    ? state.currentLevel.encounters
+    : state.currentLevel.enemies;
+  if (state.enemyIndex >= sequence.length) { clearLevel(); return; }
+
+  const encounter = sequence[state.enemyIndex];
+  if (encounter.actorId) runAmbientEncounter(encounter);
+  else spawnDynamicEncounter(encounter);
 }
 
 function loseLife() {
@@ -283,7 +401,7 @@ function clearLevel() {
 }
 
 function resetCampaign() {
-  clearTimers(); state.lives = DATA.startingLives; state.score = 0; state.ammo = DATA.maxAmmo; state.completed.clear(); state.currentLevel = null; state.enemyIndex = 0; state.activeEnemy = null; state.running = false; renderMenu();
+  clearTimers(); state.lives = DATA.startingLives; state.score = 0; state.ammo = DATA.maxAmmo; state.completed.clear(); state.currentLevel = null; state.enemyIndex = 0; state.activeEnemy = null; state.ambientActors.clear(); state.running = false; renderMenu();
 }
 
 function renderStory() {

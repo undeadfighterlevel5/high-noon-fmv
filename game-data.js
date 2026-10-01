@@ -5,7 +5,7 @@ window.GAME_DATA = {
   hitDisplayMs: 450,
   betweenEnemiesMs: 650,
   reactionJitterMs: 45,
-  civilianVisibleMs: 1200,
+  civilianVisibleMs: 1350,
 
   story: [
     {
@@ -48,20 +48,50 @@ window.GAME_DATA = {
       order: 2,
       name: "Silver Spur Saloon",
       difficulty: "LEVEL 2 — MEDIUM",
-      description: "New background pass with real saloon geometry. Six villains are mixed with a bartender and two innocent poker players. Watch the piano, poker tables, barrel by the doors, coat rack, and the upper balcony.",
+      description: "The saloon now uses named scene anchors, persistent civilians, and foreground occlusion layers. Learn the room: the piano, card tables, doors, crate, bar, and balcony all behave like real cover.",
       sceneClass: "scene-saloon",
       cover: [],
-      enemies: [
-        { id: "saloon-civ-1", kind: "civilian", role: "poker", x: 12, y: 88, reveal: "rise", visibleMs: 1300, scale: 1.16 },
-        { id: "saloon-villain-1", kind: "villain", role: "outlaw", x: 8, y: 71, reveal: "right", reactionMs: 1180, scale: 1.03 },
-        { id: "saloon-villain-2", kind: "villain", role: "outlaw", x: 43, y: 68, reveal: "rise", reactionMs: 980, scale: 0.94 },
-        { id: "saloon-civ-2", kind: "civilian", role: "bartender", x: 87, y: 67, reveal: "rise", visibleMs: 1250, scale: 0.97 },
-        { id: "saloon-villain-3", kind: "villain", role: "outlaw", startX: 50, startY: 63, x: 50, y: 69, walkMs: 980, reveal: "rise", reactionMs: 860, scale: 0.9 },
-        { id: "saloon-civ-3", kind: "civilian", role: "poker", x: 32, y: 73, reveal: "rise", visibleMs: 1150, scale: 0.96 },
-        { id: "saloon-villain-4", kind: "villain", role: "outlaw", x: 62, y: 64, reveal: "left", reactionMs: 820, scale: 0.86 },
-        { id: "saloon-villain-5", kind: "villain", role: "outlaw", x: 66, y: 31, reveal: "rise", reactionMs: 760, scale: 0.66 },
-        { id: "saloon-villain-6", kind: "villain", role: "outlaw", x: 86, y: 17, reveal: "left", reactionMs: 690, scale: 0.6 }
-      ]
+      scene: {
+        background: "saloon-bg.png",
+        anchors: {
+          pokerFrontSeat:   { x: 18.0, y: 82.0, scale: 1.12, z: 20 },
+          pianoLean:        { x: 23.5, y: 61.5, scale: 0.92, z: 20 },
+          pokerMidSeat:     { x: 33.0, y: 64.0, scale: 0.80, z: 20 },
+          barrelLeftDoor:   { x: 39.8, y: 58.5, scale: 0.76, z: 20 },
+          doorThreshold:    { x: 50.2, y: 58.0, scale: 0.60, z: 18 },
+          doorShoot:        { x: 50.2, y: 69.0, scale: 0.82, z: 20 },
+          crateRightDoor:   { x: 62.7, y: 61.5, scale: 0.74, z: 20 },
+          bartender:        { x: 87.0, y: 61.5, scale: 0.92, z: 19 },
+          balconyRail:      { x: 66.5, y: 22.5, scale: 0.58, z: 18 },
+          balconyDoorStart: { x: 74.2, y: 15.0, scale: 0.45, z: 18 },
+          balconyDoorShoot: { x: 74.2, y: 23.5, scale: 0.56, z: 18 }
+        },
+        occluders: [
+          { id: "piano", src: "saloon-occ-piano.png" },
+          { id: "frontPoker", src: "saloon-occ-front-poker.png" },
+          { id: "midPoker", src: "saloon-occ-mid-table.png" },
+          { id: "doorProps", src: "saloon-occ-door-props.png" },
+          { id: "doors", src: "saloon-occ-doors.png" },
+          { id: "bar", src: "saloon-occ-bar.png" },
+          { id: "balcony", src: "saloon-occ-balcony.png" }
+        ],
+        ambientActors: [
+          { id: "poker-front", kind: "civilian", role: "poker", anchor: "pokerFrontSeat", pose: "seated", hitbox: { left: 12, right: 12, top: 0, bottom: 42 } },
+          { id: "poker-mid", kind: "civilian", role: "poker", anchor: "pokerMidSeat", pose: "seated", hitbox: { left: 12, right: 12, top: 0, bottom: 40 } },
+          { id: "bartender", kind: "civilian", role: "bartender", anchor: "bartender", pose: "idle", persistent: true, hitbox: { left: 12, right: 12, top: 0, bottom: 45 } }
+        ]
+      },
+      encounters: [
+        { id: "saloon-civ-front", kind: "civilian", actorId: "poker-front", motion: "standExitLeft", visibleMs: 1500 },
+        { id: "saloon-villain-1", kind: "villain", role: "outlaw", anchor: "pianoLean", motion: "leanRight", reactionMs: 1180, hitbox: { left: 10, right: 5, top: 0, bottom: 30 } },
+        { id: "saloon-villain-2", kind: "villain", role: "outlaw", anchor: "barrelLeftDoor", motion: "rise", reactionMs: 1030, hitbox: { left: 12, right: 12, top: 0, bottom: 48 } },
+        { id: "saloon-civ-mid", kind: "civilian", actorId: "poker-mid", motion: "standExitRight", visibleMs: 1350 },
+        { id: "saloon-villain-3", kind: "villain", role: "outlaw", anchor: "doorShoot", startAnchor: "doorThreshold", motion: "doorEnter", moveMs: 900, reactionMs: 900, hitbox: { left: 10, right: 10, top: 0, bottom: 12 } },
+        { id: "saloon-villain-4", kind: "villain", role: "outlaw", anchor: "crateRightDoor", motion: "leanLeft", reactionMs: 820, hitbox: { left: 8, right: 12, top: 0, bottom: 42 } },
+        { id: "saloon-villain-5", kind: "villain", role: "outlaw", anchor: "balconyRail", motion: "rise", reactionMs: 760, hitbox: { left: 10, right: 10, top: 0, bottom: 48 } },
+        { id: "saloon-villain-6", kind: "villain", role: "outlaw", anchor: "balconyDoorShoot", startAnchor: "balconyDoorStart", motion: "balconyStep", moveMs: 520, reactionMs: 690, hitbox: { left: 10, right: 10, top: 0, bottom: 45 } }
+      ],
+      enemies: []
     },
     {
       id: "bank",

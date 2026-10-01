@@ -34,3 +34,18 @@ And add:
 - `game-data.js`
 
 GitHub Pages will redeploy automatically after the commit.
+
+
+## Saloon v0.2.3 architecture
+
+The saloon is the reference implementation for future levels. It now uses named anchors rather than arbitrary screen coordinates, transparent occluder layers for tables/bar/balcony/props, persistent ambient civilians, reusable reveal motions, and a fixed encounter sequence. Shooting civilians costs 500 points. Future level art should define the same four pieces: background, anchors, occluders, and encounters.
+
+### v0.2.3 saloon notes
+
+- Six villains use believable named anchors tied to the room.
+- Two poker civilians begin seated; their turns make them stand and exit.
+- The bartender exists persistently behind the bar and is partially hidden by the bar layer.
+- Seven full-size transparent occluder layers place actors behind the piano, tables, door props, swinging doors, bar, and balcony rail.
+- Civilian shots cost 500 points.
+- Visible hitboxes are reduced for actors behind cover, so hidden body areas are not meant to be valid shots.
+- `SCENE_STANDARD.md` is the template for converting every later level to the same system.
