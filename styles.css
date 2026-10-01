@@ -53,3 +53,14 @@
 .actor{pointer-events:none!important;}
 .actor .outlaw,.actor .civilian{pointer-events:none;}
 .shot-target{position:absolute;left:var(--hit-left,0);right:var(--hit-right,0);top:var(--hit-top,0);bottom:var(--hit-bottom,0);pointer-events:auto;cursor:crosshair;z-index:20;}
+
+
+/* v0.2.4 slot visibility windows */
+.actor-viewport{position:absolute;inset:0;overflow:hidden;}
+.actor-viewport .shot-target{pointer-events:auto;}
+.slot-frontPoker{z-index:24;}
+.slot-barLane{z-index:22;}
+.slot-midPoker{z-index:21;}
+.slot-barrelLane,.slot-doorCenter,.slot-crateLane{z-index:20;}
+.slot-pianoLane{z-index:19;}
+.slot-balconyRail,.slot-balconyDoor{z-index:18;}

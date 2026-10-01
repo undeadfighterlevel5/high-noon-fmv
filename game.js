@@ -145,6 +145,24 @@ function applyAnchor(el, anchor) {
   if (anchor.z) el.style.zIndex = String(anchor.z);
 }
 
+function resolveSlot(level, anchor) {
+  const slotName = anchor && anchor.slot;
+  if (!slotName || !level.scene || !level.scene.slots) return null;
+  return { id: slotName, ...(level.scene.slots[slotName] || {}) };
+}
+
+function mountActor(level, actorEl, anchor) {
+  const slot = resolveSlot(level, anchor);
+  if (!slot) return { node: actorEl, actorEl };
+  const viewport = document.createElement('div');
+  viewport.className = `actor-viewport slot-${slot.id}`;
+  viewport.style.clipPath = slot.clipPath;
+  viewport.style.webkitClipPath = slot.clipPath;
+  viewport.style.zIndex = String(slot.z || anchor.z || 20);
+  viewport.appendChild(actorEl);
+  return { node: viewport, actorEl };
+}
+
 function renderScene(level) {
   els.sceneLayer.className = `scene-layer ${level.sceneClass || ''}`;
   els.sceneLayer.style.backgroundImage = '';
@@ -217,13 +235,13 @@ function penalizeCivilian(actorRecord, event) {
     state.enemyIndex++;
     state.activeEnemy = null;
     timer(() => {
-      actorRecord.el.remove();
+      actorRecord.node.remove();
       state.ambientActors.delete(actorRecord.data.id);
       timer(spawnNextEnemy, DATA.betweenEnemiesMs);
     }, DATA.hitDisplayMs);
   } else {
     timer(() => {
-      actorRecord.el.remove();
+      actorRecord.node.remove();
       state.ambientActors.delete(actorRecord.data.id);
     }, DATA.hitDisplayMs);
   }
@@ -236,8 +254,9 @@ function renderAmbientActors(level) {
     const anchor = resolveAnchor(level, data);
     const el = createActorVisual(data, anchor);
     el.classList.add('ambient-actor', 'revealed');
-    els.enemyLayer.appendChild(el);
-    const record = { data, el, shot: false };
+    const mounted = mountActor(level, el, anchor);
+    els.enemyLayer.appendChild(mounted.node);
+    const record = { data, el, node: mounted.node, shot: false };
     state.ambientActors.set(data.id, record);
     el.querySelector('.shot-target').addEventListener('pointerdown', e => penalizeCivilian(record, e));
   });
@@ -262,7 +281,7 @@ function finishAmbientEncounter(active, actorRecord) {
   if (!state.running || state.activeEnemy !== active) return;
   state.enemyIndex++;
   state.activeEnemy = null;
-  actorRecord.el.remove();
+  actorRecord.node.remove();
   state.ambientActors.delete(actorRecord.data.id);
   timer(spawnNextEnemy, DATA.betweenEnemiesMs);
 }
@@ -300,7 +319,8 @@ function spawnDynamicEncounter(encounter) {
   const targetAnchor = resolveAnchor(level, encounter, 'anchor');
   const startAnchor = encounter.startAnchor ? resolveAnchor(level, encounter, 'startAnchor') : targetAnchor;
   const el = createActorVisual(encounter, startAnchor);
-  els.enemyLayer.appendChild(el);
+  const mounted = mountActor(level, el, targetAnchor);
+  els.enemyLayer.appendChild(mounted.node);
 
   const moveMs = encounter.startAnchor ? (encounter.moveMs || 700) : 0;
   if (moveMs) el.style.setProperty('--move-ms', `${moveMs}ms`);
@@ -310,7 +330,7 @@ function spawnDynamicEncounter(encounter) {
     if (moveMs) applyAnchor(el, targetAnchor);
   });
 
-  const active = { data: encounter, el, hit: false, fired: false, kind: encounter.kind || 'villain' };
+  const active = { data: encounter, el, node: mounted.node, hit: false, fired: false, kind: encounter.kind || 'villain' };
   state.activeEnemy = active;
 
   el.querySelector('.shot-target').addEventListener('pointerdown', event => {
@@ -332,7 +352,7 @@ function spawnDynamicEncounter(encounter) {
 
     state.enemyIndex++;
     timer(() => {
-      if (el.isConnected) el.remove();
+      if (mounted.node.isConnected) mounted.node.remove();
       state.activeEnemy = null;
       timer(spawnNextEnemy, DATA.betweenEnemiesMs);
     }, DATA.hitDisplayMs);
@@ -344,7 +364,7 @@ function spawnDynamicEncounter(encounter) {
       state.enemyIndex++;
       state.activeEnemy = null;
       el.classList.add('civilian-exit');
-      timer(() => { el.remove(); timer(spawnNextEnemy, DATA.betweenEnemiesMs); }, 220);
+      timer(() => { mounted.node.remove(); timer(spawnNextEnemy, DATA.betweenEnemiesMs); }, 220);
     }, moveMs + (encounter.visibleMs || DATA.civilianVisibleMs || 1350));
     return;
   }

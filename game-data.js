@@ -53,28 +53,31 @@ window.GAME_DATA = {
       cover: [],
       scene: {
         background: "saloon-bg.png",
-        anchors: {
-          pokerFrontSeat:   { x: 18.0, y: 82.0, scale: 1.12, z: 20 },
-          pianoLean:        { x: 23.5, y: 61.5, scale: 0.92, z: 20 },
-          pokerMidSeat:     { x: 33.0, y: 64.0, scale: 0.80, z: 20 },
-          barrelLeftDoor:   { x: 39.8, y: 58.5, scale: 0.76, z: 20 },
-          doorThreshold:    { x: 50.2, y: 58.0, scale: 0.60, z: 18 },
-          doorShoot:        { x: 50.2, y: 69.0, scale: 0.82, z: 20 },
-          crateRightDoor:   { x: 62.7, y: 61.5, scale: 0.74, z: 20 },
-          bartender:        { x: 87.0, y: 61.5, scale: 0.92, z: 19 },
-          balconyRail:      { x: 66.5, y: 22.5, scale: 0.58, z: 18 },
-          balconyDoorStart: { x: 74.2, y: 15.0, scale: 0.45, z: 18 },
-          balconyDoorShoot: { x: 74.2, y: 23.5, scale: 0.56, z: 18 }
+        slots: {
+          frontPoker:   { clipPath: "polygon(3% 53%, 18% 53%, 27% 60%, 27% 88%, 21% 88%, 21% 83%, 4% 83%, 4% 72%, 2% 72%)", z: 24 },
+          pianoLane:    { clipPath: "polygon(20% 36%, 29% 36%, 29% 61%, 33% 61%, 33% 74%, 20% 74%)", z: 19 },
+          midPoker:     { clipPath: "polygon(24% 58%, 40% 58%, 40% 76%, 24% 76%)", z: 21 },
+          barrelLane:   { clipPath: "polygon(38% 51%, 44% 51%, 44% 69%, 38% 69%)", z: 20 },
+          doorCenter:   { clipPath: "polygon(46% 35%, 56% 35%, 56% 68%, 46% 68%)", z: 20 },
+          crateLane:    { clipPath: "polygon(60% 53%, 68% 53%, 68% 76%, 60% 76%)", z: 20 },
+          barLane:      { clipPath: "polygon(77% 34%, 100% 34%, 100% 71%, 80% 71%, 80% 60%, 74% 60%, 74% 52%, 77% 52%)", z: 22 },
+          balconyRail:  { clipPath: "polygon(59% 13%, 73% 13%, 73% 28%, 59% 28%)", z: 18 },
+          balconyDoor:  { clipPath: "polygon(77% 5%, 90% 5%, 90% 24%, 77% 24%)", z: 18 }
         },
-        occluders: [
-          { id: "piano", src: "saloon-occ-piano.png" },
-          { id: "frontPoker", src: "saloon-occ-front-poker.png" },
-          { id: "midPoker", src: "saloon-occ-mid-table.png" },
-          { id: "doorProps", src: "saloon-occ-door-props.png" },
-          { id: "doors", src: "saloon-occ-doors.png" },
-          { id: "bar", src: "saloon-occ-bar.png" },
-          { id: "balcony", src: "saloon-occ-balcony.png" }
-        ],
+        anchors: {
+          pokerFrontSeat:   { x: 17.0, y: 82.0, scale: 1.10, z: 24, slot: "frontPoker" },
+          pianoLean:        { x: 23.8, y: 63.0, scale: 0.92, z: 19, slot: "pianoLane" },
+          pokerMidSeat:     { x: 31.0, y: 67.5, scale: 0.82, z: 21, slot: "midPoker" },
+          barrelLeftDoor:   { x: 40.0, y: 61.0, scale: 0.76, z: 20, slot: "barrelLane" },
+          doorThreshold:    { x: 50.2, y: 60.0, scale: 0.62, z: 20, slot: "doorCenter" },
+          doorShoot:        { x: 50.2, y: 69.0, scale: 0.82, z: 20, slot: "doorCenter" },
+          crateRightDoor:   { x: 63.8, y: 64.5, scale: 0.80, z: 20, slot: "crateLane" },
+          bartender:        { x: 87.5, y: 62.5, scale: 0.96, z: 22, slot: "barLane" },
+          balconyRail:      { x: 66.0, y: 28.0, scale: 0.62, z: 18, slot: "balconyRail" },
+          balconyDoorStart: { x: 83.0, y: 16.0, scale: 0.46, z: 18, slot: "balconyDoor" },
+          balconyDoorShoot: { x: 83.0, y: 25.0, scale: 0.58, z: 18, slot: "balconyDoor" }
+        },
+        occluders: [],
         ambientActors: [
           { id: "poker-front", kind: "civilian", role: "poker", anchor: "pokerFrontSeat", pose: "seated", hitbox: { left: 12, right: 12, top: 0, bottom: 42 } },
           { id: "poker-mid", kind: "civilian", role: "poker", anchor: "pokerMidSeat", pose: "seated", hitbox: { left: 12, right: 12, top: 0, bottom: 40 } },
