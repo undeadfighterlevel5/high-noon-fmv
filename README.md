@@ -54,3 +54,8 @@ The saloon is the reference implementation for future levels. It now uses named 
 ## Latest update
 
 Saloon v0.2.4 switches the room to slot-based visibility windows. Actors only appear inside approved reveal zones, and each slot has its own depth rules.
+
+
+## v0.2.4.1
+
+Adjusted the first front-poker civilian: moved him left toward the indicated chair and restored the front poker-table occluder so the table edge, bottle, and chips sit in front of him.
